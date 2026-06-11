@@ -6,6 +6,12 @@ public class Main{
         System.out.println("Getting active network connections...");
 
         //creating object that will read input from the windows
-        ProcessBuilder pb=new ProcessBuilder();
+        ProcessBuilder pb=new ProcessBuilder("netstat","-ano");
+        try{
+            //starting the process initiated by Process Builder
+        Process process=pb.start();
+    }catch (Exception e){
+            System.out.println("Some Error occur");
+        }
     }
 }
