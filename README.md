@@ -28,4 +28,4 @@ You might investigate.
 
 Security analysts spend a lot of time looking at network activity.
 
-Our tool is a very tiny first step toward that.
+My tool is a very tiny first step toward that.
