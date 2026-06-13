@@ -1,3 +1,7 @@
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
+import java.io.Reader;
+
 public class Main{
     public static void main (String [] args){
 
@@ -10,6 +14,14 @@ public class Main{
         try{
             //starting the process initiated by Process Builder
         Process process=pb.start();
+        InputStreamReader input=new InputStreamReader(process.getInputStream());
+        BufferedReader buffer=new BufferedReader(input);
+            String line;
+        while ((buffer.readLine()!=null)){
+            line=buffer.readLine();
+            System.out.println(line);
+
+        }
     }catch (Exception e){
             System.out.println("Some Error occur");
         }
