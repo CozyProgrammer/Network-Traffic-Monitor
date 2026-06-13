@@ -14,14 +14,24 @@ public class Main{
         try{
             //starting the process initiated by Process Builder
         Process process=pb.start();
+
+        //converting the bytes into characters
         InputStreamReader input=new InputStreamReader(process.getInputStream());
+
+        //reading the characters and amending line by line
         BufferedReader buffer=new BufferedReader(input);
+
+        //for storing the connection whole line
             String line;
+
+            //for counting the all connection
+            int n=0;
         while ((buffer.readLine()!=null)){
             line=buffer.readLine();
             System.out.println(line);
-
+            n++
         }
+        System.out.println("Total connections : " + n);
     }catch (Exception e){
             System.out.println("Some Error occur");
         }
