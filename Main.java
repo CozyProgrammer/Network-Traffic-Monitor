@@ -28,18 +28,28 @@ public class Main{
             String line;
 
             String [] array;
-            int num=1;
 
         while (((line=buffer.readLine())!=null)){
             if(line.contains("ESTABLISHED")){
                 array=line.trim().split("\\s+");
-                System.out.println("Connection#: " + num);
+
+                //Asking Program to read the Process name
+                //Process name getting command tasklist /FI
+                String filter="PID eq " + array[4];
+                ProcessBuilder pb1=new ProcessBuilder("tasklist","/FI",filter);
+                String line1;
+                    Process process1=pb1.start();
+                    InputStreamReader input1=new InputStreamReader(process1.getInputStream());
+                    BufferedReader buffer1=new BufferedReader(input1);
+                    while ((line1= buffer1.readLine())!= null)
+                    System.out.println(line1);
+
+
                 System.out.println("Protocol: " + array[0]);
                 System.out.println("Local Host: " + array[1]);
                 System.out.println("Remote: " + array[2]);
                 System.out.println("PID#: " + array[4]);
                 System.out.println();
-                num++;
             n++;}
         }
     }catch (IOException e){
