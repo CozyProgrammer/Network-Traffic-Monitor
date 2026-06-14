@@ -27,13 +27,21 @@ public class Main{
         //for storing the connection whole line
             String line;
 
-        while ((buffer.readLine()!=null)){
-            line=buffer.readLine();
+            String [] array;
+            int num=1;
+
+        while (((line=buffer.readLine())!=null)){
             if(line.contains("ESTABLISHED")){
-            System.out.println(line);
+                array=line.trim().split("\\s+");
+                System.out.println("Connection#: " + num);
+                System.out.println("Protocol: " + array[0]);
+                System.out.println("Local Host: " + array[1]);
+                System.out.println("Remote: " + array[2]);
+                System.out.println("PID#: " + array[4]);
+                System.out.println();
+                num++;
             n++;}
         }
-
     }catch (IOException e){
             System.out.println("Some Error occur");
         }
