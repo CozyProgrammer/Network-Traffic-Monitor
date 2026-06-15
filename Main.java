@@ -41,14 +41,22 @@ public class Main{
                     Process process1=pb1.start();
                     InputStreamReader input1=new InputStreamReader(process1.getInputStream());
                     BufferedReader buffer1=new BufferedReader(input1);
-                    while ((line1= buffer1.readLine())!= null)
-                    System.out.println(line1);
+                    int num=1;
+                    String processName="";
+                    while ((line1= buffer1.readLine())!= null){
+                        if(num==4){
+                            String [] array1=line1.trim().split("\\s+");
+                            processName=array1[0];
+                        }
+                    num++;
+                    }
 
 
                 System.out.println("Protocol: " + array[0]);
                 System.out.println("Local Host: " + array[1]);
                 System.out.println("Remote: " + array[2]);
                 System.out.println("PID#: " + array[4]);
+                System.out.println("Process Name: " + processName);
                 System.out.println();
             n++;}
         }
