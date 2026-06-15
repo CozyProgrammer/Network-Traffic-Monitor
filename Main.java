@@ -33,30 +33,47 @@ public class Main{
             if(line.contains("ESTABLISHED")){
                 array=line.trim().split("\\s+");
 
-                //Asking Program to read the Process name
-                //Process name getting command tasklist /FI
+
+                //Process_Name getting command Task_list
                 String filter="PID eq " + array[4];
+
+                //creating Object that will take lines from the data
                 ProcessBuilder pb1=new ProcessBuilder("tasklist","/FI",filter);
                 String line1;
+
+                    //Process start
                     Process process1=pb1.start();
+
+                    //Converting the bitsBytes into characters by program
                     InputStreamReader input1=new InputStreamReader(process1.getInputStream());
+
+                    //Read line by line but the program itself
                     BufferedReader buffer1=new BufferedReader(input1);
-                    int num=1;
                     String processName="";
+
+                    //for Taking the Program name
                     while ((line1= buffer1.readLine())!= null){
-                        if(num==4){
-                            String [] array1=line1.trim().split("\\s+");
+                        if(!(line1.isEmpty())){
+                        String [] array1=line1.trim().split("\\s+");
+                        if(array1[0].contains(".exe")){
                             processName=array1[0];
-                        }
-                    num++;
+                        }}
                     }
 
+                    //dividing the localhost into Ip and Port Parts
+                String [] localHost=array[1].split(":");
+                    //dividing the Remote into Ip and Port Parts
+                String [] remoteHost=array[2].split(":");
 
-                System.out.println("Protocol: " + array[0]);
-                System.out.println("Local Host: " + array[1]);
-                System.out.println("Remote: " + array[2]);
-                System.out.println("PID#: " + array[4]);
+                //showing the parts of connections
                 System.out.println("Process Name: " + processName);
+                System.out.println("Protocol: " + array[0]);
+                System.out.println("Local IP: " + localHost[0]);
+                System.out.println("Local Host Port: " + localHost[1]);
+                System.out.println("Remote IP: " + remoteHost[0]);
+                System.out.println("Remote Port: " + remoteHost[1]);
+                System.out.println("PID#: " + array[4]);
+
                 System.out.println();
             n++;}
         }
@@ -65,6 +82,8 @@ public class Main{
         }
 
         //showing established connections
+        System.out.println("==================================");
         System.out.println("Total Established connections : " + n);
+        System.out.println("==================================");
     }
 }
