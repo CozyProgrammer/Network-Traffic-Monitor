@@ -66,6 +66,8 @@ public class Main{
                 String [] remoteHost=array[2].split(":");
 
                 //showing the parts of connections
+
+                if(!(localHost[0].equals("127.0.0.1"))){
                 System.out.println("Process Name: " + processName);
                 System.out.println("Protocol: " + array[0]);
                 System.out.println("Local IP: " + localHost[0]);
@@ -76,14 +78,15 @@ public class Main{
 
                 System.out.println();
             n++;}
+            }
         }
     }catch (IOException e){
             System.out.println("Some Error occur");
         }
 
         //showing established connections
-        System.out.println("==================================");
-        System.out.println("Total Established connections : " + n);
-        System.out.println("==================================");
+        System.out.println("=======================================");
+        System.out.println("Total Outer Established connections : " + n);
+        System.out.println("=======================================");
     }
 }
