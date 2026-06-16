@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
+import java.security.SecureRandom;
 
 public class Main{
     public static void main (String [] args){
@@ -11,6 +12,8 @@ public class Main{
 
         //for counting the all connection
         int n=0;
+        int chromeCount=0;
+        //int
 
         //creating object that will read input from the windows
         ProcessBuilder pb=new ProcessBuilder("netstat","-ano");
@@ -30,7 +33,7 @@ public class Main{
             String [] array;
 
         while (((line=buffer.readLine())!=null)){
-            if(line.contains("ESTABLISHED")){
+           if(line.contains("ESTABLISHED")){
                 array=line.trim().split("\\s+");
 
 
@@ -64,21 +67,37 @@ public class Main{
                 String [] localHost=array[1].split(":");
                     //dividing the Remote into Ip and Port Parts
                 String [] remoteHost=array[2].split(":");
+                String [] mid=remoteHost[0].split("\\.");
+               int one=Integer.parseInt(mid[0]);
+                int two=Integer.parseInt(mid[1]);
 
                 //showing the parts of connections
-
                 if(!(localHost[0].equals("127.0.0.1"))){
+                    if(!((remoteHost[0].startsWith("192.168")) || (remoteHost[0].startsWith("10")) ||
+                            (one==172 && 16<=two && two<=31))){
                 System.out.println("Process Name: " + processName);
+                System.out.println("Connection: Internet");
                 System.out.println("Protocol: " + array[0]);
                 System.out.println("Local IP: " + localHost[0]);
                 System.out.println("Local Host Port: " + localHost[1]);
                 System.out.println("Remote IP: " + remoteHost[0]);
                 System.out.println("Remote Port: " + remoteHost[1]);
                 System.out.println("PID#: " + array[4]);
-
                 System.out.println();
-            n++;}
-            }
+                    }else {
+                        System.out.println("Process Name: " + processName);
+                        System.out.println("Connection: Private");
+                        System.out.println("Protocol: " + array[0]);
+                        System.out.println("Local IP: " + localHost[0]);
+                        System.out.println("Local Host Port: " + localHost[1]);
+                        System.out.println("Remote IP: " + remoteHost[0]);
+                        System.out.println("Remote Port: " + remoteHost[1]);
+                        System.out.println("PID#: " + array[4]);
+                        System.out.println();
+                    }
+                    n++;
+                }
+           }
         }
     }catch (IOException e){
             System.out.println("Some Error occur");
