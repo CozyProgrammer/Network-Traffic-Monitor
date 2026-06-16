@@ -1,7 +1,6 @@
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
-import java.security.SecureRandom;
 
 public class Main{
     public static void main (String [] args){
@@ -12,8 +11,6 @@ public class Main{
 
         //for counting the all connection
         int n=0;
-        int num=0;
-        int number=0;
 
         //creating object that will read input from the windows
         ProcessBuilder pb=new ProcessBuilder("netstat","-ano");
@@ -33,7 +30,7 @@ public class Main{
             String [] array;
 
         while (((line=buffer.readLine())!=null)){
-           if(line.contains("ESTABLISHED")){
+            if(line.contains("ESTABLISHED")){
                 array=line.trim().split("\\s+");
 
 
@@ -67,62 +64,29 @@ public class Main{
                 String [] localHost=array[1].split(":");
                     //dividing the Remote into Ip and Port Parts
                 String [] remoteHost=array[2].split(":");
-                String [] mid=remoteHost[0].split("\\.");
-               int one=Integer.parseInt(mid[0]);
-                int two=Integer.parseInt(mid[1]);
-                boolean isPrivate=remoteHost[0].startsWith("192.168") || remoteHost[0].startsWith("10") ||
-                        (one==172 && 16<=two && two<=31);
 
                 //showing the parts of connections
+
                 if(!(localHost[0].equals("127.0.0.1"))){
-                    if(!isPrivate){
                 System.out.println("Process Name: " + processName);
-                System.out.println("Connection: Internet");
                 System.out.println("Protocol: " + array[0]);
                 System.out.println("Local IP: " + localHost[0]);
                 System.out.println("Local Host Port: " + localHost[1]);
                 System.out.println("Remote IP: " + remoteHost[0]);
                 System.out.println("Remote Port: " + remoteHost[1]);
                 System.out.println("PID#: " + array[4]);
+
                 System.out.println();
-                    }else {
-                        System.out.println("Process Name: " + processName);
-                        System.out.println("Connection: Private");
-                        System.out.println("Protocol: " + array[0]);
-                        System.out.println("Local IP: " + localHost[0]);
-                        System.out.println("Local Host Port: " + localHost[1]);
-                        System.out.println("Remote IP: " + remoteHost[0]);
-                        System.out.println("Remote Port: " + remoteHost[1]);
-                        System.out.println("PID#: " + array[4]);
-                        System.out.println();
-                    }
-                    n++;
-                }
-                else{
-                   num++;
-                }
-           }
-           else{
-               number++;
-           }
+            n++;}
+            }
         }
     }catch (IOException e){
             System.out.println("Some Error occur");
         }
 
-        //showing Overall connection loopBack,private,internet(TCP ,UDP) connections as well....
+        //showing established connections
         System.out.println("=======================================");
-        System.out.println("Total Overall connections : " + number);
+        System.out.println("Total Outer Established connections : " + n);
         System.out.println("=======================================");
-
-        //Showing connection loopBack,private,Internet
-        System.out.println("==================================");
-        System.out.println("Total Established connections : " + num);
-        System.out.println("==================================");
-
-        //Showing connection only Private and Internet
-        System.out.println("=======================================");
-        System.out.println("Total Private and Internet connections : " + n);
-        System.out.println("=======================================\n");
     }
 }
