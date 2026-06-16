@@ -12,8 +12,8 @@ public class Main{
 
         //for counting the all connection
         int n=0;
-        int chromeCount=0;
-        //int
+        int num=0;
+        int number=0;
 
         //creating object that will read input from the windows
         ProcessBuilder pb=new ProcessBuilder("netstat","-ano");
@@ -70,11 +70,12 @@ public class Main{
                 String [] mid=remoteHost[0].split("\\.");
                int one=Integer.parseInt(mid[0]);
                 int two=Integer.parseInt(mid[1]);
+                boolean isPrivate=remoteHost[0].startsWith("192.168") || remoteHost[0].startsWith("10") ||
+                        (one==172 && 16<=two && two<=31);
 
                 //showing the parts of connections
                 if(!(localHost[0].equals("127.0.0.1"))){
-                    if(!((remoteHost[0].startsWith("192.168")) || (remoteHost[0].startsWith("10")) ||
-                            (one==172 && 16<=two && two<=31))){
+                    if(!isPrivate){
                 System.out.println("Process Name: " + processName);
                 System.out.println("Connection: Internet");
                 System.out.println("Protocol: " + array[0]);
@@ -97,15 +98,31 @@ public class Main{
                     }
                     n++;
                 }
+                else{
+                   num++;
+                }
+           }
+           else{
+               number++;
            }
         }
     }catch (IOException e){
             System.out.println("Some Error occur");
         }
 
-        //showing established connections
+        //showing Overall connection loopBack,private,internet(TCP ,UDP) connections as well....
         System.out.println("=======================================");
-        System.out.println("Total Outer Established connections : " + n);
+        System.out.println("Total Overall connections : " + number);
         System.out.println("=======================================");
+
+        //Showing connection loopBack,private,Internet
+        System.out.println("==================================");
+        System.out.println("Total Established connections : " + num);
+        System.out.println("==================================");
+
+        //Showing connection only Private and Internet
+        System.out.println("=======================================");
+        System.out.println("Total Private and Internet connections : " + n);
+        System.out.println("=======================================\n");
     }
 }
