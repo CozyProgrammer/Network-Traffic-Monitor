@@ -3,15 +3,45 @@ import java.io.InputStreamReader;
 import java.io.BufferedReader;
 
 public class Main{
+
+                    // ****   All the Variables    ****
+
+    //for counting the all connection
+    static int n=0,num = 0,number=0;
+    //for storing the connection whole line
+    static String line;
+    //for storing the component of the Ip address
+    static String [] array;
+    //for storing the ProcessNames and their counts and Total Number of Processes
+    static String [] ProcessNames=new String[50];
+    static int [] countProcess=new int[50];
+    static int processTotal = 0;
+
+
     public static void main (String [] args){
 
         //opening statements
         System.out.println("Network Traffic Monitor Started");
         System.out.println("Getting active network connections...");
+        mainMethod();
 
-        //for counting the all connection
-        int n=0,num = 0,number=0;
+        //UDP
+        System.out.println("All Non-Established : " + number);
 
+        //showing all the Established connections
+        System.out.println("Total LoopBack connections : " + num);
+
+        //showing Private and Internet connections where remote IP is not Private
+        System.out.println("Total Private and Internet connections : " + n);
+
+        //showing counting of the processes
+        for(int i=0;i<processTotal;i++){{
+            System.out.println(ProcessNames[i] + " : " + countProcess[i]);
+            }
+        }
+    }
+
+    private static void mainMethod(){
         //creating object that will read input from the windows
         ProcessBuilder pb=new ProcessBuilder("netstat","-ano");
         try{
@@ -23,11 +53,6 @@ public class Main{
 
             //reading the characters and amending line by line
             BufferedReader buffer=new BufferedReader(input);
-
-            //for storing the connection whole line
-            String line;
-
-            String [] array;
 
             while (((line=buffer.readLine())!=null)){
                 if(line.contains("ESTABLISHED")){
@@ -93,6 +118,19 @@ public class Main{
                             System.out.println();
                         }
                         n++;
+                        boolean isPresent=false;
+                        for(int i=0;i<processTotal;i++){
+                            if(ProcessNames[i].equals(processName)){
+                                countProcess[i]++;
+                                isPresent=true;
+                                break;
+                            }
+                        }
+                        if(!isPresent){
+                            ProcessNames[processTotal] = processName;
+                            countProcess[processTotal] = 1;
+                            processTotal++;
+                        }
                     }
                     else{
                         num++;
@@ -105,20 +143,6 @@ public class Main{
         }catch (IOException e){
             System.out.println("Some Error occur");
         }
-
-        //UDP
-        System.out.println("================================");
-        System.out.println("All Non-Established : " + number);
-        System.out.println("================================");
-
-        //showing all the Established connections
-        System.out.println("==================================");
-        System.out.println("Total LoopBack connections : " + num);
-        System.out.println("==================================");
-
-        //showing Private and Internet connections where remote IP is not Private
-        System.out.println("=======================================");
-        System.out.println("Total Private and Internet connections : " + n);
-        System.out.println("=======================================");
     }
+
 }
