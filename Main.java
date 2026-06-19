@@ -1,6 +1,8 @@
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Main{
 
@@ -12,11 +14,8 @@ public class Main{
     static String line;
     //for storing the component of the Ip address
     static String [] array;
-    //for storing the ProcessNames and their counts and Total Number of Processes
-    static String [] ProcessNames=new String[50];
-    static int [] countProcess=new int[50];
-    static int processTotal = 0;
 
+    static HashMap <String,Integer> connections=new HashMap<>(50);
 
     public static void main (String [] args){
 
@@ -24,6 +23,8 @@ public class Main{
         System.out.println("Network Traffic Monitor Started");
         System.out.println("Getting active network connections...");
         mainMethod();
+
+
 
         //UDP
         System.out.println("All Non-Established : " + number);
@@ -34,16 +35,16 @@ public class Main{
         //showing Private and Internet connections where remote IP is not Private
         System.out.println("Total Private and Internet connections : " + n);
 
-        //showing counting of the processes
-        for(int i=0;i<processTotal;i++){{
-            System.out.println(ProcessNames[i] + " : " + countProcess[i]);
-            }
-        }
+
     }
 
     private static void mainMethod(){
+
         //creating object that will read input from the windows
         ProcessBuilder pb=new ProcessBuilder("netstat","-ano");
+
+        Integer processCount = 0;
+
         try{
             //starting the process initiated by Process Builder
             Process process=pb.start();
@@ -118,19 +119,16 @@ public class Main{
                             System.out.println();
                         }
                         n++;
-                        boolean isPresent=false;
-                        for(int i=0;i<processTotal;i++){
-                            if(ProcessNames[i].equals(processName)){
-                                countProcess[i]++;
-                                isPresent=true;
-                                break;
-                            }
-                        }
-                        if(!isPresent){
-                            ProcessNames[processTotal] = processName;
-                            countProcess[processTotal] = 1;
-                            processTotal++;
-                        }
+                        if(!(processName.isEmpty())){
+                      if(connections.containsKey(processName)){
+                         processCount= connections.get(processName);
+                          processCount++;
+                          connections.put(processName,processCount);
+                      }
+                      else {
+                          connections.put(processName,1);
+                      }
+                    }
                     }
                     else{
                         num++;
@@ -139,6 +137,9 @@ public class Main{
                 else {
                     number++;
                 }
+            }
+            for(Map.Entry<String,Integer> entry : connections.entrySet()){
+                System.out.println(entry.getKey()+" : "+ entry.getValue());
             }
         }catch (IOException e){
             System.out.println("Some Error occur");
