@@ -1,7 +1,7 @@
-import java.awt.*;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
+import java.net.InetAddress;
 import java.util.*;
 
 public class Main{
@@ -25,7 +25,6 @@ public class Main{
         mainMethod();
         System.out.println();
 
-
         //UDP
         System.out.println("All Non-Established : " + number);
 
@@ -34,8 +33,6 @@ public class Main{
 
         //showing Private and Internet connections where remote IP is not Private
         System.out.println("Total Private and Internet connections : " + n);
-
-
     }
 
     private static void mainMethod(){
@@ -43,7 +40,7 @@ public class Main{
         //creating object that will read input from the windows
         ProcessBuilder pb=new ProcessBuilder("netstat","-ano");
 
-        Integer processCount = 0;
+        int processCount;
 
         try{
             //starting the process initiated by Process Builder
@@ -58,8 +55,7 @@ public class Main{
             while (((line=buffer.readLine())!=null)){
                 if(line.contains("ESTABLISHED")){
                     array=line.trim().split("\\s+");
-
-                    //Process_Name getting command Task_list
+                    //name of process
                     String filter="PID eq " + array[4];
 
                     //creating Object that will take lines from the data
@@ -92,43 +88,42 @@ public class Main{
                     String [] mid=remoteHost[0].split("\\.");
                     int one=Integer.parseInt(mid[0]);
                     int two=Integer.parseInt(mid[1]);
-                    boolean isPrivate=remoteHost[0].startsWith("192.168") || remoteHost[0].startsWith("10") ||
-                            (one==172 && 16<=two && two<=31);
+
+                    InetAddress RemoteHostName=InetAddress.getByName(remoteHost[0]);
+
+                    boolean isPrivate=(remoteHost[0].startsWith("192.168") || remoteHost[0].startsWith("10.") ||
+                            (one==172 && 16<=two && two<=31));
 
                     //showing the parts of connections
                     if(!(localHost[0].equals("127.0.0.1"))){
                         if(!isPrivate){
-                            System.out.println("Process Name: " + processName);
-                            System.out.println("Connection: Internet");
+                            System.out.println("Process Name: " + processName +" , ConnectionType: Internet");
                             System.out.println("Protocol: " + array[0]);
-                            System.out.println("Local IP: " + localHost[0]);
-                            System.out.println("Local Host Port: " + localHost[1]);
-                            System.out.println("Remote IP: " + remoteHost[0]);
-                            System.out.println("Remote Port: " + remoteHost[1]);
+                            System.out.println("Local IP: " + localHost[0] + " , Local Host Port: " +localHost[1]);
+                            System.out.println("Remote Host Name : " + RemoteHostName.getHostName());
+                            System.out.println("Remote IP: " + remoteHost[0] + " , Remote Port: " + remoteHost[1]);
                             System.out.println("PID#: " + array[4]);
                             System.out.println();
                         }else {
-                            System.out.println("Process Name: " + processName);
-                            System.out.println("Connection: Private");
+                            System.out.println("Process Name: " + processName +" , ConnectionType: Private");
                             System.out.println("Protocol: " + array[0]);
-                            System.out.println("Local IP: " + localHost[0]);
-                            System.out.println("Local Host Port: " + localHost[1]);
-                            System.out.println("Remote IP: " + remoteHost[0]);
-                            System.out.println("Remote Port: " + remoteHost[1]);
+                            System.out.println("Local IP: " + localHost[0] +" , Local Host Port: " +localHost[1]);
+
+                            System.out.println("Remote IP: " + remoteHost[0] + " , Remote Port: " + remoteHost[1]);
                             System.out.println("PID#: " + array[4]);
                             System.out.println();
                         }
                         n++;
                         if(!(processName.isEmpty())){
-                      if(connections.containsKey(processName)){
-                         processCount= connections.get(processName);
-                          processCount++;
-                          connections.put(processName,processCount);
-                      }
-                      else {
+                           if(connections.containsKey(processName)){
+                               processCount= connections.get(processName);
+                               processCount++;
+                               connections.put(processName,processCount);
+                           }
+                           else {
                           connections.put(processName,1);
-                      }
-                    }
+                           }
+                        }
                     }
                     else{
                         num++;
@@ -140,7 +135,6 @@ public class Main{
             }
 
             ArrayList<Map.Entry<String,Integer>> forSort=new ArrayList<>(connections.entrySet());
-
             Collections.sort(forSort,(e1,e2) ->
                     e2.getValue().compareTo(e1.getValue()));
             for(Map.Entry<String,Integer> entry:forSort){
@@ -148,7 +142,7 @@ public class Main{
             }
 
         }catch (IOException e){
-            System.out.println("Some Error occur");
+            System.out.println("Some Error Occur");
         }
     }
 
