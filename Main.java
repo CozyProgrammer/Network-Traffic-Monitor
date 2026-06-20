@@ -1,8 +1,8 @@
+import java.awt.*;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Main{
 
@@ -23,7 +23,7 @@ public class Main{
         System.out.println("Network Traffic Monitor Started");
         System.out.println("Getting active network connections...");
         mainMethod();
-
+        System.out.println();
 
 
         //UDP
@@ -138,9 +138,15 @@ public class Main{
                     number++;
                 }
             }
-            for(Map.Entry<String,Integer> entry : connections.entrySet()){
-                System.out.println(entry.getKey()+" : "+ entry.getValue());
+
+            ArrayList<Map.Entry<String,Integer>> forSort=new ArrayList<>(connections.entrySet());
+
+            Collections.sort(forSort,(e1,e2) ->
+                    e2.getValue().compareTo(e1.getValue()));
+            for(Map.Entry<String,Integer> entry:forSort){
+                System.out.println(entry.getKey() + " : " + entry.getValue());
             }
+
         }catch (IOException e){
             System.out.println("Some Error occur");
         }
