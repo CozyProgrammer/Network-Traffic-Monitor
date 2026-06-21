@@ -1,12 +1,11 @@
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.util.*;
 
 public class Main{
-
-                    // ****   All the Variables    ****
 
     //for counting the all connection
     static int n=0,num = 0,number=0;
@@ -22,9 +21,19 @@ public class Main{
         //opening statements
         System.out.println("Network Traffic Monitor Started");
         System.out.println("Getting active network connections...");
-        mainMethod();
-        System.out.println();
-
+        int wait=1;
+        try {
+            while (true){
+                connections.clear();
+                System.out.println("**********Scan #:" + wait + "************");
+                mainMethod();
+                Thread.sleep(5000);
+                System.out.println();
+            wait++;
+            }
+        } catch (InterruptedException e) {
+            System.out.println(e.getMessage());
+        }
         //UDP
         System.out.println("All Non-Established : " + number);
 
@@ -89,7 +98,7 @@ public class Main{
                     int one=Integer.parseInt(mid[0]);
                     int two=Integer.parseInt(mid[1]);
 
-                    InetAddress RemoteHostName=InetAddress.getByName(remoteHost[0]);
+                   // InetAddress RemoteHostName=InetAddress.getByName(remoteHost[0]);
 
                     boolean isPrivate=(remoteHost[0].startsWith("192.168") || remoteHost[0].startsWith("10.") ||
                             (one==172 && 16<=two && two<=31));
@@ -100,7 +109,7 @@ public class Main{
                             System.out.println("Process Name: " + processName +" , ConnectionType: Internet");
                             System.out.println("Protocol: " + array[0]);
                             System.out.println("Local IP: " + localHost[0] + " , Local Host Port: " +localHost[1]);
-                            System.out.println("Remote Host Name : " + RemoteHostName.getHostName());
+                          //  System.out.println("Remote Host Name : " + RemoteHostName.getHostName());
                             System.out.println("Remote IP: " + remoteHost[0] + " , Remote Port: " + remoteHost[1]);
                             System.out.println("PID#: " + array[4]);
                             System.out.println();
@@ -108,7 +117,7 @@ public class Main{
                             System.out.println("Process Name: " + processName +" , ConnectionType: Private");
                             System.out.println("Protocol: " + array[0]);
                             System.out.println("Local IP: " + localHost[0] +" , Local Host Port: " +localHost[1]);
-
+                            // System.out.println("Remote Host Name : " + RemoteHostName.getHostName());
                             System.out.println("Remote IP: " + remoteHost[0] + " , Remote Port: " + remoteHost[1]);
                             System.out.println("PID#: " + array[4]);
                             System.out.println();
