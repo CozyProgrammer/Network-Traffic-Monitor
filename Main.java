@@ -34,10 +34,10 @@ public class Main{
                     showAllProcesses();
                     System.out.println("If Want to quit the process Press (q)");
                     String q=sc.nextLine();
-                        if(q.equals("q")){
-                            stopProcess();
-                            System.out.println("Scanning Closed");
-                        }
+                    if(q.equals("q")){
+                        stopProcess();
+                        System.out.println("Scanning Closed");
+                    }
                     break;
                 }
                 case "2":{
@@ -55,8 +55,8 @@ public class Main{
                 }
                 case "4":{
                     System.out.println("Program Terminated");
-                isRoot=false;
-                break;
+                    isRoot=false;
+                    break;
                 }
                 default:{
                 }
@@ -69,17 +69,23 @@ public class Main{
     private static ScheduledExecutorService service;
     private static boolean shouldExist;
 
+
     private static void showAllProcesses(){
         stopProcess();
         count=1;
         HashMap<String, Integer> connections = new HashMap<>();
+
+        HashSet <String> oldConnections=new HashSet<>(200);
+        HashSet <String> newConnections=new HashSet<>(50);
+        HashSet<String> currentConnections = new HashSet<>();
+
         shouldExist=false;
         service= Executors.newSingleThreadScheduledExecutor();
         service.scheduleAtFixedRate(() -> {
             if(!shouldExist){
                 System.out.println("********* SCAN" + count + "  **********");
+                System.out.println();
                 count++;
-                System.out.println("Showing All the Private/Public Connections, Loading...");
                 //creating object that will read input from the windows
                 ProcessBuilder pb = new ProcessBuilder("netstat", "-ano");
                 int processCount;
@@ -91,9 +97,11 @@ public class Main{
                     //converting the bytes into characters
                     InputStreamReader input = new InputStreamReader(process.getInputStream());
 
+                    oldConnections.addAll(currentConnections);
+                    currentConnections.clear();
+
                     //reading the characters and amending line by line
                     BufferedReader buffer = new BufferedReader(input);
-
                     while (((line = buffer.readLine()) != null)) {
                         if (line.contains("ESTABLISHED")) {
                             array = line.trim().split("\\s+");
@@ -136,49 +144,76 @@ public class Main{
                                     (one == 172 && 16 <= two && two <= 31));
 
                             //showing the parts of connections
+
+                            String InternetDetails="Process Name: " + processName + " , ConnectionType: Internet\n"
+                                    +"Protocol: " + array[0]+"\nLocal IP: " + localHost[0] + " , Local Host Port: " + localHost[1]+
+                                    "\nRemote IP: " + remoteHost[0] + " , Remote Port: " + remoteHost[1]+
+                                    "\nPID#: " + array[4];
+
+                            String privateDetails="Process Name: " + processName + " , ConnectionType: Private\n"
+                                    +"Protocol: " + array[0]+"\nLocal IP: " + localHost[0] + " , Local Host Port: " + localHost[1]+
+                                    "\nRemote IP: " + remoteHost[0] + " , Remote Port: " + remoteHost[1]+
+                                    "\nPID#: " + array[4];
+
                             if (!(localHost[0].equals("127.0.0.1"))) {
-                                if (!isPrivate) {
-                                    System.out.println("Process Name: " + processName + " , ConnectionType: Internet");
-                                    System.out.println("Protocol: " + array[0]);
-                                    System.out.println("Local IP: " + localHost[0] + " , Local Host Port: " + localHost[1]);
-                                    System.out.println("Remote IP: " + remoteHost[0] + " , Remote Port: " + remoteHost[1]);
-                                    System.out.println("PID#: " + array[4]);
-                                    System.out.println();
-                                } else {
-                                    System.out.println("Process Name: " + processName + " , ConnectionType: Private");
-                                    System.out.println("Protocol: " + array[0]);
-                                    System.out.println("Local IP: " + localHost[0] + " , Local Host Port: " + localHost[1]);
-                                    System.out.println("Remote IP: " + remoteHost[0] + " , Remote Port: " + remoteHost[1]);
-                                    System.out.println("PID#: " + array[4]);
-                                    System.out.println();
+                                if (!isPrivate && !(oldConnections.contains(InternetDetails))) {
+                                    newConnections.add(InternetDetails);
+                                } else if (isPrivate && !(oldConnections.contains(privateDetails))){
+                                    newConnections.add(privateDetails);
+
                                 }
-                                if (!(processName.isEmpty())) {
-                                    if (connections.containsKey(processName)) {
-                                        processCount = connections.get(processName);
-                                        processCount++;
-                                        connections.put(processName, processCount);
-                                    } else {
-                                        connections.put(processName, 1);
-                                    }
+                            }
+                            if (!(processName.isEmpty())) {
+                                if (connections.containsKey(processName)) {
+                                    processCount = connections.get(processName);
+                                    processCount++;
+                                    connections.put(processName, processCount);
+                                } else {
+                                    connections.put(processName, 1);
                                 }
                             }
                         }
                     }
+
+
+                    if(!(oldConnections.isEmpty())){
+                        System.out.println("<<<<<< Old Connections >>>>>");
+                        for(String details:oldConnections){
+                            System.out.println(details);
+                            System.out.println();
+                        }
+                    }else {
+                        System.out.println("<<<<<< No Old Connection >>>>>");
+                        System.out.println();
+                    }
+                    if(!(newConnections.isEmpty())){
+                        System.out.println("<<<<<< New Connections >>>>>");
+                        for(String details:newConnections){
+                            System.out.println(details);
+                            currentConnections.add(details);
+                            System.out.println();
+                        }
+                    }else {
+                        System.out.println("<<<<<< No New Connection >>>>>");
+                        System.out.println();
+                    }
+                    oldConnections.clear();
+                    newConnections.clear();
                     ArrayList<Map.Entry<String, Integer>> forSort = new ArrayList<>(connections.entrySet());
                     Collections.sort(forSort, (e1, e2) ->
                             e2.getValue().compareTo(e1.getValue()));
                     System.out.println("******************************");
                     for (Map.Entry<String, Integer> entry : forSort) {
                         System.out.println(entry.getKey() + " : " + entry.getValue());
-                    System.out.println("******************************");
+                        System.out.println("******************************");
                     }
                     System.out.println("If Want to quit the process Press (q)");
-                connections.clear();
+                    connections.clear();
                 }catch (IOException e) {
                     System.out.println("Some Error Occur");
                 }
             }
-        },0,5, TimeUnit.SECONDS);
+        },0,10, TimeUnit.SECONDS);
     }
 
     private static void showTopProcesses(){
@@ -187,88 +222,11 @@ public class Main{
         HashMap<String, Integer> connections = new HashMap<>();
         shouldExist=false;
         service= Executors.newSingleThreadScheduledExecutor();
-            service.scheduleAtFixedRate(()->{
-                if(!shouldExist){
-                    System.out.println("********* SCAN" + count + "  **********");
-                    count++;
-                    //creating object that will read input from the windows
-                    ProcessBuilder pb = new ProcessBuilder("netstat", "-ano");
-                    int processCount;
-                    String[] names = new String[50];
-                    try {
-                        //starting the process initiated by Process Builder
-                        Process process = pb.start();
-
-                        //converting the bytes into characters
-                        InputStreamReader input = new InputStreamReader(process.getInputStream());
-
-                        //reading the characters and amending line by line
-                        BufferedReader buffer = new BufferedReader(input);
-
-                        while (((line = buffer.readLine()) != null)) {
-                            if (line.contains("ESTABLISHED")) {
-                                array = line.trim().split("\\s+");
-                                String filter = "PID eq " + array[4];
-                                ProcessBuilder pb1 = new ProcessBuilder("tasklist", "/FI", filter);
-                                String line1;
-                                Process process1 = pb1.start();
-                                InputStreamReader input1 = new InputStreamReader(process1.getInputStream());
-                                BufferedReader buffer1 = new BufferedReader(input1);
-                                String processName = "";
-                                while ((line1 = buffer1.readLine()) != null) {
-                                    if (!(line1.isEmpty())) {
-                                        String[] array1 = line1.trim().split("\\s+");
-                                        if (array1[0].contains(".exe")) {
-                                            processName = array1[0];
-                                        }
-                                    }
-                                }
-                                String[] localHost = array[1].split(":");
-                                String[] remoteHost = array[2].split(":");
-                                if (remoteHost[0].contains(":")) continue;
-                                String[] mid = remoteHost[0].split("\\.");
-                                int one = Integer.parseInt(mid[0]);
-                                int two = Integer.parseInt(mid[1]);
-                                boolean isPrivate = (remoteHost[0].startsWith("192.168") || remoteHost[0].startsWith("10.") ||
-                                        (one == 172 && 16 <= two && two <= 31));
-                                    if (!(processName.isEmpty())) {
-                                        if (connections.containsKey(processName)) {
-                                            processCount = connections.get(processName);
-                                            processCount++;
-                                            connections.put(processName, processCount);
-                                        } else {
-                                            connections.put(processName, 1);
-                                        }
-                                    }
-                                }
-                            }
-                        ArrayList<Map.Entry<String, Integer>> forSort = new ArrayList<>(connections.entrySet());
-                        Collections.sort(forSort, (e1, e2) ->
-                                e2.getValue().compareTo(e1.getValue()));
-                        int n = 1;
-                        System.out.println("Top 5 Connections....");
-                        System.out.println("******************************");
-                        for (Map.Entry<String, Integer> entry : forSort) {
-                            if (n <=5) {
-                                System.out.println(entry.getKey() + " : " + entry.getValue());
-                                n++;
-                            }
-                            else
-                                break;
-                        }
-                        System.out.println("******************************");
-                        System.out.println("If Want to quit the process Press (q)");
-                        connections.clear();
-                    }catch (IOException e) {
-                        System.out.println("Some Error Occur");
-                    }
-            }
-        },0,5,TimeUnit.SECONDS);
-    }
-
-    private static void specificProcess(Scanner sc){
-
-        HashMap<String, Integer> connections = new HashMap<>();
+        service.scheduleAtFixedRate(()->{
+            if(!shouldExist){
+                System.out.println("********* SCAN" + count + "  **********");
+                count++;
+                //creating object that will read input from the windows
                 ProcessBuilder pb = new ProcessBuilder("netstat", "-ano");
                 int processCount;
                 String[] names = new String[50];
@@ -322,33 +280,110 @@ public class Main{
                     ArrayList<Map.Entry<String, Integer>> forSort = new ArrayList<>(connections.entrySet());
                     Collections.sort(forSort, (e1, e2) ->
                             e2.getValue().compareTo(e1.getValue()));
-
-                    System.out.println("Choose Option");
-
-                    for (int i = 0; i < forSort.size(); i++) {
-                        System.out.println(
-                                (i + 1) + ". " +
-                                        forSort.get(i).getKey());
+                    int n = 1;
+                    System.out.println("Top 5 Connections....");
+                    System.out.println("******************************");
+                    for (Map.Entry<String, Integer> entry : forSort) {
+                        if (n <=5) {
+                            System.out.println(entry.getKey() + " : " + entry.getValue());
+                            n++;
+                        }
+                        else
+                            break;
                     }
-
-                    int choice =
-                            Integer.parseInt(sc.nextLine());
-
-                    if (choice >= 1 && choice <= forSort.size()) {
-
-                        Map.Entry<String, Integer> selected =
-                                forSort.get(choice - 1);
-                        System.out.println("******************************");
-                        System.out.println(selected.getKey() + " : " + selected.getValue());
-                        System.out.println("******************************");
-                    }
-
-        }catch (IOException e) {
+                    System.out.println("******************************");
+                    System.out.println("If Want to quit the process Press (q)");
+                    connections.clear();
+                }catch (IOException e) {
                     System.out.println("Some Error Occur");
                 }
+            }
+        },0,10,TimeUnit.SECONDS);
     }
 
-        private static void stopProcess(){
+    private static void specificProcess(Scanner sc){
+
+        HashMap<String, Integer> connections = new HashMap<>();
+        ProcessBuilder pb = new ProcessBuilder("netstat", "-ano");
+        int processCount;
+        String[] names = new String[50];
+        try {
+            //starting the process initiated by Process Builder
+            Process process = pb.start();
+
+            //converting the bytes into characters
+            InputStreamReader input = new InputStreamReader(process.getInputStream());
+
+            //reading the characters and amending line by line
+            BufferedReader buffer = new BufferedReader(input);
+
+            while (((line = buffer.readLine()) != null)) {
+                if (line.contains("ESTABLISHED")) {
+                    array = line.trim().split("\\s+");
+                    String filter = "PID eq " + array[4];
+                    ProcessBuilder pb1 = new ProcessBuilder("tasklist", "/FI", filter);
+                    String line1;
+                    Process process1 = pb1.start();
+                    InputStreamReader input1 = new InputStreamReader(process1.getInputStream());
+                    BufferedReader buffer1 = new BufferedReader(input1);
+                    String processName = "";
+                    while ((line1 = buffer1.readLine()) != null) {
+                        if (!(line1.isEmpty())) {
+                            String[] array1 = line1.trim().split("\\s+");
+                            if (array1[0].contains(".exe")) {
+                                processName = array1[0];
+                            }
+                        }
+                    }
+                    String[] localHost = array[1].split(":");
+                    String[] remoteHost = array[2].split(":");
+                    if (remoteHost[0].contains(":")) continue;
+                    String[] mid = remoteHost[0].split("\\.");
+                    int one = Integer.parseInt(mid[0]);
+                    int two = Integer.parseInt(mid[1]);
+                    boolean isPrivate = (remoteHost[0].startsWith("192.168") || remoteHost[0].startsWith("10.") ||
+                            (one == 172 && 16 <= two && two <= 31));
+                    if (!(processName.isEmpty())) {
+                        if (connections.containsKey(processName)) {
+                            processCount = connections.get(processName);
+                            processCount++;
+                            connections.put(processName, processCount);
+                        } else {
+                            connections.put(processName, 1);
+                        }
+                    }
+                }
+            }
+            ArrayList<Map.Entry<String, Integer>> forSort = new ArrayList<>(connections.entrySet());
+            Collections.sort(forSort, (e1, e2) ->
+                    e2.getValue().compareTo(e1.getValue()));
+
+            System.out.println("Choose Option");
+
+            for (int i = 0; i < forSort.size(); i++) {
+                System.out.println(
+                        (i + 1) + ". " +
+                                forSort.get(i).getKey());
+            }
+
+            int choice =
+                    Integer.parseInt(sc.nextLine());
+
+            if (choice >= 1 && choice <= forSort.size()) {
+
+                Map.Entry<String, Integer> selected =
+                        forSort.get(choice - 1);
+                System.out.println("******************************");
+                System.out.println(selected.getKey() + " : " + selected.getValue());
+                System.out.println("******************************");
+            }
+
+        }catch (IOException e) {
+            System.out.println("Some Error Occur");
+        }
+    }
+
+    private static void stopProcess(){
         shouldExist=true;
         if(service!= null){
             service.shutdown();
