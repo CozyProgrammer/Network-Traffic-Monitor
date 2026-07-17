@@ -1,6 +1,10 @@
+import javax.swing.*;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
+import java.sql.Time;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -81,8 +85,10 @@ public class Main{
 
         shouldExist=false;
         service= Executors.newSingleThreadScheduledExecutor();
-        service.scheduleAtFixedRate(() -> {
+        service.scheduleWithFixedDelay(() -> {
             if(!shouldExist){
+                try (FileWriter fileWriter=new FileWriter("D:\\Connections\\connections.txt");){
+                fileWriter.write("********* SCAN" + count + "  **********\n");
                 System.out.println("********* SCAN" + count + "  **********");
                 System.out.println();
                 count++;
@@ -144,7 +150,6 @@ public class Main{
                                     (one == 172 && 16 <= two && two <= 31));
 
                             //showing the parts of connections
-
                             String InternetDetails="Process Name: " + processName + " , ConnectionType: Internet\n"
                                     +"Protocol: " + array[0]+"\nLocal IP: " + localHost[0] + " , Local Host Port: " + localHost[1]+
                                     "\nRemote IP: " + remoteHost[0] + " , Remote Port: " + remoteHost[1]+
@@ -175,7 +180,6 @@ public class Main{
                         }
                     }
 
-
                     if(!(oldConnections.isEmpty())){
                         System.out.println("<<<<<< Old Connections >>>>>");
                         for(String details:oldConnections){
@@ -187,12 +191,16 @@ public class Main{
                         System.out.println();
                     }
                     if(!(newConnections.isEmpty())){
-                        System.out.println("<<<<<< New Connections >>>>>");
-                        for(String details:newConnections){
-                            System.out.println(details);
-                            currentConnections.add(details);
-                            System.out.println();
-                        }
+                            fileWriter.write("<<<<<< New Connections >>>>>\n");
+                            System.out.println("<<<<<< New Connections >>>>>");
+                            for(String details:newConnections){
+                                fileWriter.write(details+"\n\n");
+                                System.out.println(details);
+                                currentConnections.add(details);
+                                System.out.println();
+
+                            }
+                        fileWriter.write("\n");
                     }else {
                         System.out.println("<<<<<< No New Connection >>>>>");
                         System.out.println();
@@ -202,18 +210,27 @@ public class Main{
                     ArrayList<Map.Entry<String, Integer>> forSort = new ArrayList<>(connections.entrySet());
                     Collections.sort(forSort, (e1, e2) ->
                             e2.getValue().compareTo(e1.getValue()));
+                    fileWriter.write("******************************\n");
                     System.out.println("******************************");
                     for (Map.Entry<String, Integer> entry : forSort) {
+                        fileWriter.write(entry.getKey() + " : " + entry.getValue()+"\n");
                         System.out.println(entry.getKey() + " : " + entry.getValue());
                         System.out.println("******************************");
+                        fileWriter.write("******************************\n");
+                        fileWriter.write("\n");
+
                     }
+                    fileWriter.write("\n");
+                    fileWriter.close();
                     System.out.println("If Want to quit the process Press (q)");
                     connections.clear();
                 }catch (IOException e) {
                     System.out.println("Some Error Occur");
                 }
+            }catch (Exception e) {
+                System.out.println("Some Error Occur");
             }
-        },0,10, TimeUnit.SECONDS);
+        }},0,6, TimeUnit.SECONDS);
     }
 
     private static void showTopProcesses(){
@@ -222,7 +239,7 @@ public class Main{
         HashMap<String, Integer> connections = new HashMap<>();
         shouldExist=false;
         service= Executors.newSingleThreadScheduledExecutor();
-        service.scheduleAtFixedRate(()->{
+        service.scheduleWithFixedDelay(()->{
             if(!shouldExist){
                 System.out.println("********* SCAN" + count + "  **********");
                 count++;
@@ -298,7 +315,7 @@ public class Main{
                     System.out.println("Some Error Occur");
                 }
             }
-        },0,10,TimeUnit.SECONDS);
+        },0,6,TimeUnit.SECONDS);
     }
 
     private static void specificProcess(Scanner sc){
