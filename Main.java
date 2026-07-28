@@ -1,10 +1,9 @@
 import javax.swing.*;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
+import java.io.*;
 import java.sql.Time;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -83,12 +82,25 @@ public class Main{
         HashSet <String> newConnections=new HashSet<>(50);
         HashSet<String> currentConnections = new HashSet<>();
 
+        LocalDateTime now=LocalDateTime.now();
+        DateTimeFormatter formatter=DateTimeFormatter.ofPattern("dd MMMM yyyy HH-mm-ss");
+        String pattern=now.format(formatter);
+
+        FileWriter fileWriter= null;
+        try {
+            fileWriter = new FileWriter("D:\\Connections\\Scan-ON-"+pattern+".txt",true);
+        } catch (IOException e) {
+            System.out.println("Cannot Create file Due to some Error");
+        }
+        BufferedWriter writer=new BufferedWriter(fileWriter);
+
         shouldExist=false;
         service= Executors.newSingleThreadScheduledExecutor();
         service.scheduleWithFixedDelay(() -> {
             if(!shouldExist){
-                try (FileWriter fileWriter=new FileWriter("D:\\Connections\\connections.txt");){
-                fileWriter.write("********* SCAN" + count + "  **********\n");
+                try {
+                    writer.write("********* SCAN" + count + "  **********");
+                    writer.newLine();
                 System.out.println("********* SCAN" + count + "  **********");
                 System.out.println();
                 count++;
@@ -191,16 +203,16 @@ public class Main{
                         System.out.println();
                     }
                     if(!(newConnections.isEmpty())){
-                            fileWriter.write("<<<<<< New Connections >>>>>\n");
+                            writer.write("<<<<<< New Connections >>>>>\n");
                             System.out.println("<<<<<< New Connections >>>>>");
                             for(String details:newConnections){
-                                fileWriter.write(details+"\n\n");
+                                writer.write(details+"\n\n");
                                 System.out.println(details);
                                 currentConnections.add(details);
                                 System.out.println();
 
                             }
-                        fileWriter.write("\n");
+                        writer.newLine();
                     }else {
                         System.out.println("<<<<<< No New Connection >>>>>");
                         System.out.println();
@@ -210,18 +222,18 @@ public class Main{
                     ArrayList<Map.Entry<String, Integer>> forSort = new ArrayList<>(connections.entrySet());
                     Collections.sort(forSort, (e1, e2) ->
                             e2.getValue().compareTo(e1.getValue()));
-                    fileWriter.write("******************************\n");
+                    writer.write("******************************\n");
                     System.out.println("******************************");
                     for (Map.Entry<String, Integer> entry : forSort) {
-                        fileWriter.write(entry.getKey() + " : " + entry.getValue()+"\n");
+                        writer.write(entry.getKey() + " : " + entry.getValue()+"\n");
                         System.out.println(entry.getKey() + " : " + entry.getValue());
                         System.out.println("******************************");
-                        fileWriter.write("******************************\n");
-                        fileWriter.write("\n");
+                        writer.write("******************************\n");
+                        writer.newLine();
 
                     }
-                    fileWriter.write("\n");
-                    fileWriter.close();
+                    writer.newLine();
+                    writer.flush();
                     System.out.println("If Want to quit the process Press (q)");
                     connections.clear();
                 }catch (IOException e) {
